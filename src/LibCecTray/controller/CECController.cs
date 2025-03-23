@@ -176,6 +176,12 @@ namespace LibCECTray.controller
         if (setting is CECSettingBool boolSetting)
           Config.AutoPowerOn = (boolSetting.Value ? BoolSetting.Enabled : BoolSetting.Disabled);
       }
+      else if (setting.KeyName == CECSettings.KeyTVPowerOnWithActivity)
+      {
+        // TODO: Add this setting to libCEC
+        // if (setting is CECSettingBool boolSetting)
+        //   Config.PowerOnWithActivity = (boolSetting.Value ? BoolSetting.Enabled : BoolSetting.Disabled);
+      }
       else if (setting.KeyName == CECSettings.KeyDetectPhysicalAddress)
       {
         if (setting is CECSettingBool boolSetting)

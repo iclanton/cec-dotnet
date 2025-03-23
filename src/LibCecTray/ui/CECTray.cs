@@ -82,6 +82,8 @@ namespace LibCECTray.ui
     private void SystemActivity(object sender, IdleTimeChange e)
     {
       SetIdleTime(e.IdleTimeSeconds, e.IdleTimeoutSeconds);
+
+      Controller.CECActions.SendImageViewOn(GetTargetDevice());
     }
 
     private void SetIdleTime(int idleTimeSeconds, int idleTimeoutSeconds)
@@ -234,6 +236,7 @@ namespace LibCECTray.ui
       settings.StopTvStandby.ReplaceControls(this, powerTab.Controls, cbStopTvStandby);
       settings.StandbyScreen.ReplaceControls(this, powerTab.Controls, lStandbyScreen, cbStandbyScreen);
       settings.TVAutoPowerOn.ReplaceControls(this, powerTab.Controls, cbTVAutoPowerOn);
+      settings.TVPowerOnWithActivity.ReplaceControls(this, powerTab.Controls, cbTVPowerOnWithActivity);
 
       var idleTimeSetting = settings.StandbyScreen.AsSettingIdleTime;
       var cbIdleTime = (idleTimeSetting.ValueControl as ComboBox);
@@ -688,12 +691,17 @@ namespace LibCECTray.ui
           break;
       }
     }
-  }
 
-  /// <summary>
-  /// The tab pages in this application
-  /// </summary>
-  internal enum ConfigTab
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// The tab pages in this application
+    /// </summary>
+    internal enum ConfigTab
   {
     Configuration,
     KeyConfiguration,

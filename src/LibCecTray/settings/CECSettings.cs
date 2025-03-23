@@ -56,6 +56,7 @@ namespace LibCECTray.settings
     public static string KeyStopTvStandby = "global_stop_tv_standby";
     public static string KeyStandbyScreen = "global_standby_screen";
     public static string KeyTVAutoPowerOn = "global_tv_auto_power_on";
+    public static string KeyTVPowerOnWithActivity = "global_tv_power_on_with_activity";
     public static string KeyDetectPhysicalAddress = "global_detect_physical_address";
     #endregion
 
@@ -363,7 +364,21 @@ namespace LibCECTray.settings
       }
     }
 
-    public CECSettingIdleTime StandbyScreen {
+    public CECSettingBool TVPowerOnWithActivity
+    {
+      get {
+        if (!_settings.ContainsKey(KeyTVPowerOnWithActivity))
+        {
+          CECSettingBool setting = new CECSettingBool(KeyTVPowerOnWithActivity, Resources.global_tv_power_on_with_activity, true, _changedHandler);
+          _settings[KeyTVPowerOnWithActivity] = setting;
+          setting.StoreInRegistry = false; // use eeprom value
+          setting.SettingChanged += OnSettingChanged;
+         }
+         return _settings[KeyTVPowerOnWithActivity].AsSettingBool;
+      }
+    }
+
+        public CECSettingIdleTime StandbyScreen {
       get {
         if (!_settings.ContainsKey(KeyStandbyScreen))
         {

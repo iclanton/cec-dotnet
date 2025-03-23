@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,22 +16,22 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>..\..\..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
+    <OutputPath>..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>..\..\..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
+    <OutputPath>..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
-    <OutputPath>..\..\..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
+    <OutputPath>..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
-    <OutputPath>..\..\..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
+    <OutputPath>..\..\..\build\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,7 +40,7 @@
 
   <ItemGroup>
     <Reference Include="LibCecSharpCore">
-      <HintPath>..\..\..\..\..\build\$(Configuration)\$(Platform)\net8.0\LibCecSharpCore.dll</HintPath>
+      <HintPath>..\..\..\LibCecSharpCore.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>

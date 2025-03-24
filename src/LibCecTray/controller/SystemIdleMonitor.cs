@@ -150,7 +150,7 @@ namespace LibCECTray.controller
     {
       int lastIdleTimeSeconds = IdleTimeSeconds;
       IdleTimeSeconds = WindowsAPI.SystemIdleSeconds();
-      bool lasIsIdle = IsIdle;
+      bool lastIsIdle = IsIdle;
       IsIdle = IdleTimeSeconds > 0;
 
       if (!IsIdle)
@@ -159,12 +159,13 @@ namespace LibCECTray.controller
         SystemActivity?.Invoke(this, change);
       }
 
-      if (lasIsIdle != IsIdle)
+      if (lastIsIdle != IsIdle)
       {
-        bool shouldStandby = (IdleTimeoutSeconds > 0) &&
-            (IdleTimeSeconds > lastIdleTimeSeconds) &&
-            (IdleTimeSeconds >= IdleTimeoutSeconds);
-        OnSystemIdleChanged?.Invoke(this, new IdleChange(IsIdle, shouldStandby));
+        bool shouldStandby =
+          (IdleTimeoutSeconds > 0) &&
+          (IdleTimeSeconds > lastIdleTimeSeconds) &&
+          (IdleTimeSeconds >= IdleTimeoutSeconds);
+        SystemIdle?.Invoke(this, new IdleChange(IsIdle, shouldStandby));
       }
     }
 
@@ -210,7 +211,7 @@ namespace LibCECTray.controller
       }
     }
 
-    public event EventHandler<IdleChange> OnSystemIdleChanged;
+    public event EventHandler<IdleChange> SystemIdle;
     public event EventHandler<IdleTimeChange> SystemActivity;
     public event EventHandler<ScreensaverChange> ScreensaverActivated;
     public event EventHandler<SystemPowerChange> PowerStatusChanged;

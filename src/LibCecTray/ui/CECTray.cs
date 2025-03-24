@@ -64,7 +64,7 @@ namespace LibCECTray.ui
       SystemIdleMonitor.Instance.ScreensaverActivated += ScreenSaverActivated;
       SystemIdleMonitor.Instance.PowerStatusChanged += SystemPowerChanged;
       SystemIdleMonitor.Instance.SystemActivity += SystemActivity;
-      SystemIdleMonitor.Instance.OnSystemIdleChanged += SystemIdle;
+      SystemIdleMonitor.Instance.SystemIdle += SystemIdle;
       SystemEvents.SessionEnding += new SessionEndingEventHandler(OnSessionEnding);
     }
 
@@ -274,7 +274,7 @@ namespace LibCECTray.ui
     {
       Controller.SaveSettings();
     }
-   
+
     private void BReloadConfigClick(object sender, EventArgs e)
     {
       Controller.ResetDefaultSettings();
@@ -712,17 +712,12 @@ namespace LibCECTray.ui
           break;
       }
     }
+  }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-    }
-
-    /// <summary>
-    /// The tab pages in this application
-    /// </summary>
-    internal enum ConfigTab
+  /// <summary>
+  /// The tab pages in this application
+  /// </summary>
+  internal enum ConfigTab
   {
     Configuration,
     KeyConfiguration,

@@ -442,22 +442,63 @@ namespace LibCECTray.controller
     {
       _gui.SafeHide(val);
     }
+
+    public void InitializationCompleted()
+    {
+      CecPowerStatus tvPowerStatus = Lib.GetDevicePowerStatus(CecLogicalAddress.Tv);
+      TvIsOn = tvPowerStatus == CecPowerStatus.On || tvPowerStatus == CecPowerStatus.InTransitionStandbyToOn;
+    }
     #endregion
 
     #region Callbacks called by libCEC
     public override int ReceiveCommand(CecCommand command)
     {
-        if (command.Opcode == CecOpcode.Standby &&
-            (command.Destination == CecLogicalAddress.Broadcast || command.Destination == _lib.GetLogicalAddresses().Primary))
-        if (Settings.StopTvStandby.Value)
-        {
-            var key = new CecKeypress(CecUserControlCode.Stop, 0);
-            foreach (var app in _applications)
-                app.SendKey(key, false);
-            Lib.DisableCallbacks();
-            Application.SetSuspendState(PowerState.Suspend, false, false);
-        }
-        return 0;
+      switch (command.Opcode)
+      {
+        case CecOpcode.Standby:
+          {
+            if (command.Initiator == CecLogicalAddress.Tv)
+            {
+              if (TvIsOn)
+              {
+                Console.WriteLine("TV turned off");
+              }
+
+              TvIsOn = false;
+            }
+
+            if (command.Destination == CecLogicalAddress.Broadcast || command.Destination == _lib.GetLogicalAddresses().Primary)
+            {
+              if (Settings.StopTvStandby.Value)
+              {
+                var key = new CecKeypress(CecUserControlCode.Stop, 0);
+                foreach (var app in _applications)
+                  app.SendKey(key, false);
+                Lib.DisableCallbacks();
+                Application.SetSuspendState(PowerState.Suspend, false, false);
+              }
+            }
+
+            break;
+          }
+
+        case CecOpcode.GiveDevicePowerStatus:
+          {
+            if (command.Initiator == CecLogicalAddress.Tv)
+            {
+              if (!TvIsOn)
+              {
+                Console.WriteLine("TV turned on");
+              }
+
+              TvIsOn = true;
+            }
+
+            break;
+          }
+      }
+
+      return 0;
     }
 
     public override int ReceiveKeypress(CecKeypress key)
@@ -517,6 +558,8 @@ namespace LibCECTray.controller
       Settings.PowerOffDevices.Value = Config.PowerOffDevices;
       Settings.ActivateSource.Value = Config.ActivateSource;
       Settings.DeviceType.Value = config.DeviceTypes.Types[0];
+
+      bool lastTvPowerOn = Settings.TVAutoPowerOn.Value;
       Settings.TVAutoPowerOn.Value = (config.AutoPowerOn == BoolSetting.Enabled);
 
       if (config.TvVendor != CecVendorId.Unknown)
@@ -633,6 +676,7 @@ namespace LibCECTray.controller
           if (Settings.OverrideTVVendor.Value)
             _config.TvVendor = Settings.TVVendor.Value;
         }
+
         return _config;
       }
     }
@@ -686,6 +730,12 @@ namespace LibCECTray.controller
       get { return _lib ?? (_lib = new LibCecSharp(this, Config)); }
     }
     private LibCecSharp _lib;
+
+    public bool TvIsOn
+    {
+      get;
+      private set;
+    }
 
     private readonly CECTray _gui;
     public Actions CECActions;

@@ -44,7 +44,6 @@ namespace LibCECTray.controller
   {
     private SystemIdleMonitor()
     {
-      _eventFired = false;
       _refreshThread = new Thread(Refresh);
       _refreshThread.Start();
     }
@@ -151,22 +150,21 @@ namespace LibCECTray.controller
     {
       int lastIdleTimeSeconds = IdleTimeSeconds;
       IdleTimeSeconds = WindowsAPI.SystemIdleSeconds();
-      if (IdleTimeoutSeconds <= 0)
-      {
-        return;
-      }
-      IdleTimeChange change = new IdleTimeChange(IdleTimeSeconds, IdleTimeoutSeconds);
-      SystemActivity?.Invoke(this, change);
+      bool lasIsIdle = IsIdle;
+      IsIdle = IdleTimeSeconds > 0;
 
-      if (IdleTimeSeconds < lastIdleTimeSeconds && _eventFired)
+      if (!IsIdle)
       {
-        SystemIdle?.Invoke(this, new IdleChange(false));
-        _eventFired = false;
+        IdleTimeChange change = new IdleTimeChange(IdleTimeSeconds, IdleTimeoutSeconds);
+        SystemActivity?.Invoke(this, change);
       }
-      else if ((IdleTimeSeconds > lastIdleTimeSeconds) && (IdleTimeSeconds >= IdleTimeoutSeconds) && !_eventFired)
+
+      if (lasIsIdle != IsIdle)
       {
-        SystemIdle?.Invoke(this, new IdleChange(true));
-        _eventFired = true;
+        bool shouldStandby = (IdleTimeoutSeconds > 0) &&
+            (IdleTimeSeconds > lastIdleTimeSeconds) &&
+            (IdleTimeSeconds >= IdleTimeoutSeconds);
+        OnSystemIdleChanged?.Invoke(this, new IdleChange(IsIdle, shouldStandby));
       }
     }
 
@@ -174,6 +172,15 @@ namespace LibCECTray.controller
     /// Idle time in seconds
     /// </summary>
     public int IdleTimeSeconds {
+      get;
+      private set;
+    }
+
+    /// <summary>
+    /// Is the system currently idle?
+    /// </summary>
+    public bool IsIdle
+    {
       get;
       private set;
     }
@@ -203,12 +210,11 @@ namespace LibCECTray.controller
       }
     }
 
-    public event EventHandler<IdleChange> SystemIdle;
+    public event EventHandler<IdleChange> OnSystemIdleChanged;
     public event EventHandler<IdleTimeChange> SystemActivity;
     public event EventHandler<ScreensaverChange> ScreensaverActivated;
     public event EventHandler<SystemPowerChange> PowerStatusChanged;
 
-    private bool _eventFired;
     private static SystemIdleMonitor _instance = null;
     private bool _stopMonitor = false;
     private Thread _refreshThread = null;
@@ -247,17 +253,24 @@ namespace LibCECTray.controller
 
   public class IdleChange : EventArgs
   {
-    public IdleChange(bool idle)
+    public IdleChange(bool idle, bool shouldStandby)
     {
       Idle = idle;
+      ShouldStandby = shouldStandby;
     }
 
     public bool Idle {
       get;
       private set;
     }
+
+    public bool ShouldStandby
+    {
+      get;
+      private set;
+    }
   }
-  
+
   public class IdleTimeChange : EventArgs
   {
     public IdleTimeChange(int idleTimeSeconds, int idleTimeoutSeconds)

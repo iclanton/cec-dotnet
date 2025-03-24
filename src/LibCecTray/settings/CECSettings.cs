@@ -371,14 +371,14 @@ namespace LibCECTray.settings
         {
           CECSettingBool setting = new CECSettingBool(KeyTVPowerOnWithActivity, Resources.global_tv_power_on_with_activity, true, _changedHandler);
           _settings[KeyTVPowerOnWithActivity] = setting;
-          setting.StoreInRegistry = false; // use eeprom value
+          setting.Load();
           setting.SettingChanged += OnSettingChanged;
          }
          return _settings[KeyTVPowerOnWithActivity].AsSettingBool;
       }
     }
 
-        public CECSettingIdleTime StandbyScreen {
+    public CECSettingIdleTime StandbyScreen {
       get {
         if (!_settings.ContainsKey(KeyStandbyScreen))
         {

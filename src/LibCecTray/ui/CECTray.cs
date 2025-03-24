@@ -64,7 +64,7 @@ namespace LibCECTray.ui
       SystemIdleMonitor.Instance.ScreensaverActivated += ScreenSaverActivated;
       SystemIdleMonitor.Instance.PowerStatusChanged += SystemPowerChanged;
       SystemIdleMonitor.Instance.SystemActivity += SystemActivity;
-      SystemIdleMonitor.Instance.SystemIdle += SystemIdle;
+      SystemIdleMonitor.Instance.OnSystemIdleChanged += SystemIdle;
       SystemEvents.SessionEnding += new SessionEndingEventHandler(OnSessionEnding);
     }
 
@@ -72,39 +72,60 @@ namespace LibCECTray.ui
     {
       if (e.Idle)
       {
-        Controller.CECActions.SendStandby(CecLogicalAddress.Broadcast);
-      } else
+        Console.WriteLine("SYSTEM IS IDLE");
+        if (e.ShouldStandby)
+        {
+          Controller.CECActions.SendStandby(CecLogicalAddress.Broadcast);
+        }
+      }
+      else
       {
-        Controller.CECActions.ActivateSource();
+        Console.WriteLine("SYSTEM IS NO LONGER IDLE");
+        if (!Controller.TvIsOn && Controller.Settings.TVPowerOnWithActivity.Value)
+        {
+          Controller.CECActions.SendImageViewOn(GetTargetDevice());
+        }
+
+        if (SystemIdleMonitor.Instance.IdleTimeoutSeconds > 0)
+        {
+          Controller.CECActions.ActivateSource();
+        }
       }
     }
 
     private void SystemActivity(object sender, IdleTimeChange e)
     {
       SetIdleTime(e.IdleTimeSeconds, e.IdleTimeoutSeconds);
-
-      Controller.CECActions.SendImageViewOn(GetTargetDevice());
     }
 
     private void SetIdleTime(int idleTimeSeconds, int idleTimeoutSeconds)
     {
-      if (pbIdleTime.InvokeRequired)
+      if (idleTimeSeconds > 0)
       {
-        SetIdleTimeCallback cb = SetIdleTime;
-        try
+        if (pbIdleTime.InvokeRequired)
         {
-          pbIdleTime.Invoke(cb, new object[] { idleTimeSeconds, idleTimeoutSeconds });
+          SetIdleTimeCallback cb = SetIdleTime;
+          try
+          {
+            pbIdleTime.Invoke(cb, new object[] { idleTimeSeconds, idleTimeoutSeconds });
+          }
+          catch { }
         }
-        catch { }
-      }
-      else
-      {
-        if (idleTimeSeconds >= idleTimeoutSeconds)
-          pbIdleTime.Value = 100;
-        else if (idleTimeSeconds <= 0)
-          pbIdleTime.Value = 0;
         else
-          pbIdleTime.Value = (idleTimeSeconds * 100) / idleTimeoutSeconds;
+        {
+          if (idleTimeSeconds >= idleTimeoutSeconds)
+          {
+            pbIdleTime.Value = 100;
+          }
+          else if (idleTimeSeconds <= 0)
+          {
+            pbIdleTime.Value = 0;
+          }
+          else
+          {
+            pbIdleTime.Value = (idleTimeSeconds * 100) / idleTimeoutSeconds;
+          }
+        }
       }
     }
     private delegate void SetIdleTimeCallback(int idleTimeSeconds, int idleTimeoutSeconds);

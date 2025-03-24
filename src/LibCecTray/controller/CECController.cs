@@ -453,11 +453,6 @@ namespace LibCECTray.controller
           {
             if (command.Initiator == CecLogicalAddress.Tv)
             {
-              if (TvIsOn)
-              {
-                Console.WriteLine("TV turned off");
-              }
-
               TvIsOn = false;
             }
 
@@ -480,11 +475,6 @@ namespace LibCECTray.controller
           {
             if (command.Initiator == CecLogicalAddress.Tv)
             {
-              if (!TvIsOn)
-              {
-                Console.WriteLine("TV turned on");
-              }
-
               TvIsOn = true;
             }
 
@@ -552,8 +542,6 @@ namespace LibCECTray.controller
       Settings.PowerOffDevices.Value = Config.PowerOffDevices;
       Settings.ActivateSource.Value = Config.ActivateSource;
       Settings.DeviceType.Value = config.DeviceTypes.Types[0];
-
-      bool lastTvPowerOn = Settings.TVAutoPowerOn.Value;
       Settings.TVAutoPowerOn.Value = (config.AutoPowerOn == BoolSetting.Enabled);
 
       if (config.TvVendor != CecVendorId.Unknown)
@@ -670,7 +658,6 @@ namespace LibCECTray.controller
           if (Settings.OverrideTVVendor.Value)
             _config.TvVendor = Settings.TVVendor.Value;
         }
-
         return _config;
       }
     }

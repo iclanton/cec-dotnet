@@ -72,7 +72,6 @@ namespace LibCECTray.ui
     {
       if (e.Idle)
       {
-        Console.WriteLine("SYSTEM IS IDLE");
         if (e.ShouldStandby)
         {
           Controller.CECActions.SendStandby(CecLogicalAddress.Broadcast);
@@ -80,7 +79,6 @@ namespace LibCECTray.ui
       }
       else
       {
-        Console.WriteLine("SYSTEM IS NO LONGER IDLE");
         if (!Controller.TvIsOn && Controller.Settings.TVPowerOnWithActivity.Value)
         {
           Controller.CECActions.SendImageViewOn(GetTargetDevice());
